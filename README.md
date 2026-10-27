@@ -9,6 +9,7 @@ A premium, recruiter-focused portfolio for **Abdur Razzak Sakib**, Full-Stack We
 - Motion (`motion` package) for subtle animations, respecting `prefers-reduced-motion`
 - react-icons (Simple Icons / VS Code sets) for real technology logos
 - Lucide React for general UI icons
+- Resend for server-side contact-form email delivery
 - `next/font/google`: Plus Jakarta Sans (headings) + Inter (body)
 
 ## Getting Started
@@ -57,9 +58,32 @@ node scripts/verify-resume.mjs   # optional: checks text layer + link annotation
 These one-off tools are kept out of `package.json` on purpose so installs stay lean; `scripts/`
 is excluded from ESLint.
 
+## Contact Form
+
+The **Say Hello** button opens an accessible modal form. The form posts to
+`app/api/contact/route.ts`, which validates the input and sends it to your inbox with
+[Resend](https://resend.com). API keys never reach the browser.
+
+1. Create a Resend account and an API key (https://resend.com/api-keys).
+2. Verify the domain you want to send from (https://resend.com/domains).
+3. Copy `.env.example` to `.env.local` and fill in:
+
+```bash
+CONTACT_EMAIL=you@example.com
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM_EMAIL="Portfolio Contact <contact@yourdomain.com>"
+```
+
+For a quick test, `RESEND_FROM_EMAIL="Portfolio Contact <onboarding@resend.dev>"`
+works, but Resend only delivers that sender to the Resend account owner's address.
+Until the variables are configured, the form shows an error and never reports a fake
+success. The route also validates on the server, uses a honeypot field, and rate-limits
+submissions per IP (best effort on serverless).
+
 ## Deployment (Vercel)
 
 1. Push this repository to GitHub.
 2. Import it at https://vercel.com/new (framework auto-detected: Next.js).
-3. No environment variables are required — there are no secrets, no fake contact form, and no backend dependencies.
+3. Add `CONTACT_EMAIL`, `RESEND_API_KEY`, and `RESEND_FROM_EMAIL` in the project's
+   environment variables. No other secrets are required.
 4. Update `metadataBase` in `app/layout.tsx` with the final production domain.

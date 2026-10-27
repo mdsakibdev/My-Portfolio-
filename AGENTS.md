@@ -1,13 +1,13 @@
 # AGENTS.md
 
-Single-package personal portfolio site (no monorepo, no tests, no CI, no env vars, no backend). Next.js 16 App Router + TypeScript strict + Tailwind v4 + Motion. Everything prerenders statically.
+Single-package personal portfolio (no monorepo, no tests, no CI). Next.js 16 App Router + TypeScript strict + Tailwind v4 + Motion; one server route (`/api/contact`) sends email via Resend. All pages prerender via Cache Components.
 
 ## Commands
 
-- `npm run dev` — dev server (Turbopack) at http://localhost:3000
-- `npm run build` — the main verification step; there is no test suite
-- `npm run lint` — ESLint 9 flat config (`core-web-vitals` + TS); `scripts/**` and `next-env.d.ts` are ignored
-- No typecheck script exists: use `npx tsc --noEmit`
+- `npm run dev` — Turbopack dev server at http://localhost:3000
+- `npm run build` — main verification step; also runs the TypeScript check
+- `npm run lint` — bare `eslint` (flat config, `core-web-vitals` + TS); `scripts/**` and `next-env.d.ts` are ignored
+- `npx tsc --noEmit` — types alone (no `typecheck` script)
 
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -21,25 +21,40 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Architecture
 
-- `app/` — routes only: `/` (single long landing page composed of `<section>` components from `components/sections/`) and `/projects/[slug]/` (details pages, SSG via `generateStaticParams`)
-- `lib/data/` — all page content lives here: `personal-info.ts`, `projects.ts`, `technologies.tsx`. Adding or editing a project means editing `projects.ts` only; the `[slug]` page and homepage cards derive everything from it.
-- Path alias: `@/*` maps to the repo root (no `src/` directory).
-- `scripts/` — one-off tooling, not part of the app bundle and excluded from ESLint: `generate-resume.mjs` prints `scripts/resume/resume.html` to `public/resume.pdf` via Playwright/Chromium (installed ad hoc with `npm i --no-save`, see README); `verify-nav.mjs` and `verify-resume.mjs` are Playwright/pdfjs-based checks that need `npm run dev` running.
+- `app/` — routes only: `/` (landing page composed of `<section>` components in `components/sections/`) and `/projects/[slug]/` (SSG via `generateStaticParams`). `Navbar`/`Footer` are rendered per page, not in the root layout.
+- `lib/data/` — all content: `personal-info.ts` (email/socials/resume/profile photo), `projects.ts`, `technologies.tsx`. Editing a project means editing `projects.ts` only — homepage cards, detail page, prev/next links, and metadata all derive from it.
+- Path alias `@/*` → repo root (no `src/`).
+- `scripts/` — one-off Node tooling, not in the app bundle and excluded from ESLint.
+
+## Contact form
+
+- `components/contact/contact-dialog.tsx` (modal shell) + `contact-form.tsx` (fields/state) render the **Say Hello** modal; the trigger's classes must stay identical to the old mailto button.
+- `lib/contact/schema.ts` holds shared types/validation used by both the client and `app/api/contact/route.ts`. Keep it free of server-only imports.
+- Server env vars: `CONTACT_EMAIL`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (see `.env.example`). They are read only in the route — never import them into client components or prefix them with `NEXT_PUBLIC_`.
+- Without credentials the route returns 503 and the UI shows an error; never short-circuit to a success state. Resend is a dependency, not ad-hoc tooling.
+- The modal locks `html`/`body` scroll while open by design (this is separate from the mobile-menu rule below) and must keep Escape, backdrop click, close button, focus trap, and focus restoration working.
 
 ## Framework & styling quirks
 
-- `cacheComponents: true` in `next.config.ts`: data fetching is dynamic by default; cache with `use cache`, and Suspense-wrap anything uncached in the prerender shell. Requires removing any `runtime = "edge"`/`experimental_ppr` patterns. `partialPrefetching` must stay explicitly set (omitting it logs a warning).
-- Tailwind v4 with **no `tailwind.config.js`**: all design tokens (colors, fonts) are `@theme inline` CSS variables in `app/globals.css`. Design system is near-black surfaces (`background`/`surface`/`elevated`) + lime accent (`--color-accent`); use token classes like `bg-background`, `text-accent`, `border-hairline` rather than raw hex.
-- Fonts: `next/font/google` vars `--font-inter` (body) and `--font-jakarta` (headings) wired through `--font-sans`/`--font-display` in `globals.css`.
-- Animations: package is `motion` — import from `motion/react`, never `framer-motion`. Wrap scroll reveals in `<Reveal />` from `components/motion/reveal.tsx`; `MotionProvider` in the root layout sets `reducedMotion="user"`, so do not opt out of reduced motion per component. `globals.css` also force-disables animations under `prefers-reduced-motion`.
-- Route handlers/pages are sync components in this app; in Next.js 16, `params` etc. are Promises (see the `[slug]` page for the established `await params` pattern).
+- `cacheComponents: true` in `next.config.ts`: dynamic by default; cache with `use cache` and Suspense-wrap anything uncached in the prerender shell. Keep `partialPrefetching: true` (omitting it warns) and never reintroduce `runtime = "edge"`/`experimental_ppr`.
+  - `new Date()` / `Date.now()` in a plain server component is a prerender error; `components/copyright-year.tsx` shows the `"use cache"` workaround.
+- Tailwind v4 with no `tailwind.config.js` and no PostCSS config: tokens are `@theme inline` vars in `app/globals.css`, and CSS is compiled by the Turbopack-only `@tailwindcss/turbopack` loader in `turbopack.rules` — keep building with Turbopack (no `--webpack`).
+- Style with tokens (`bg-background`, `bg-surface`/`bg-elevated`, `text-accent`, `text-muted`, `border-hairline`) and the `container-site` / `text-hero` / `text-section-heading` utilities instead of raw hex or new max-widths.
+- Animations: package is `motion`; import from `motion/react` (no `framer-motion`). Use `<Reveal />` for scroll reveals. `MotionProvider` sets `reducedMotion="user"` and `globals.css` disables animation under reduced motion — don't opt out per component.
+- Next 16: `params` is a Promise (`await params`, see `[slug]`); `LayoutProps<"/">`-style global types are generated for you — use them, don't import them.
+- Keep `data-scroll-behavior="smooth"` on `<html>`: without it, Next 16 no longer neutralizes CSS smooth scrolling during navigation.
 
 ## Intentional placeholders (do not "fix" these)
 
-- `app/layout.tsx` has a TODO to update `metadataBase` after the first Vercel deploy — leave as-is unless the deployment URL is confirmed.
-- `app/projects/[slug]/page.tsx` has clearly-marked editable placeholder cards for project details the owner hasn't supplied yet.
+- `app/layout.tsx` `siteUrl`/`metadataBase` stays a placeholder until the deployment URL is confirmed.
+- Project detail page: "Development challenges" / "Possible improvements" are hardcoded `EditablePlaceholder` cards. The purpose/features placeholders disappear once the matching `purpose`/`features` fields are set in `projects.ts` — fill data, not JSX.
 
 ## Navigation gotchas
 
-- **Never use `<Link href="#hash">` for a same-page section link** — in the App Router it updates the URL hash without scrolling. Same-page anchors must be plain `<a>` elements (`components/navbar.tsx` wraps this decision in `SectionLink`; `<Link>` is used only for cross-route targets like `/#contact` from a project page).
-- **Don't lock body scroll for the mobile menu** — toggling `overflow: hidden` on `<body>` cancels the browser's native fragment scroll in Chromium, which broke all mobile menu links. The panel lives inside the fixed `<header>`, so no lock is needed; the menu must not animate its unmount (no `AnimatePresence` exit on the panel).
+- **Never use `<Link href="#hash">` for a same-page section link** — in the App Router it updates the URL hash without scrolling. Same-page anchors must be plain `<a>` elements (`components/navbar.tsx` wraps this in `SectionLink`); `<Link>` is only for cross-route targets like `/#contact` from a project page.
+- **Don't lock body scroll for the mobile menu** — toggling `overflow: hidden` on `<body>` cancels the browser's native fragment scroll in Chromium, which broke all mobile menu links. The panel lives inside the fixed `<header>`, so no lock is needed, and it must not animate its unmount (no `AnimatePresence` exit on the panel).
+
+## Resume tooling
+
+- `public/resume.pdf` is a committed artifact generated from `scripts/resume/resume.html` via `node scripts/generate-resume.mjs` (headless Chromium; letter format, tagged text, clickable links). Regenerate it after editing the template.
+- Playwright and `pdfjs-dist` are intentionally absent from `package.json`: run `npm i --no-save playwright && npx playwright install chromium` for `generate-resume.mjs` / `verify-nav.mjs`, and `npm i --no-save pdfjs-dist` for `verify-resume.mjs`. `verify-nav.mjs` needs `npm run dev` running (override with `BASE_URL`).

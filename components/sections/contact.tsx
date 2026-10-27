@@ -1,5 +1,6 @@
-import { ArrowRight, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { FaGithub as GitHub, FaLinkedin as LinkedIn, FaWhatsapp as WhatsApp } from "react-icons/fa6";
+import { ContactDialog } from "@/components/contact/contact-dialog";
 import { Reveal } from "@/components/motion/reveal";
 import { personalInfo } from "@/lib/data/personal-info";
 
@@ -67,16 +68,7 @@ export function Contact() {
                   Feel free to get in touch.
                 </p>
 
-                <a
-                  href={`mailto:${personalInfo.email}`}
-                  className="group mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3.5 text-sm font-semibold text-background transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98]"
-                >
-                  Say Hello
-                  <ArrowRight
-                    className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
-                    aria-hidden="true"
-                  />
-                </a>
+                <ContactDialog />
               </div>
 
               <ul className="grid gap-4 sm:grid-cols-2 lg:content-start">
