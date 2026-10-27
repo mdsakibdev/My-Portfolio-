@@ -1,0 +1,232 @@
+<!doctype html>
+<!--
+  Resume source used by scripts/generate-resume.mjs to produce public/resume.pdf.
+  Self-contained (no external assets) so it renders identically offline.
+  Black + lime green accents on white, ATS-friendly single-column layout.
+
+  TODO(review): items marked REVIEW below are present in lib/data/projects.ts but
+  should be confirmed by the owner. Nothing here announces invented experience,
+  metrics, or dates.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Abdur Razzak Sakib — Full-Stack Web Developer</title>
+    <style>
+      :root {
+        --ink: #18181b;
+        --muted: #52525b;
+        --lime: #65a30d; /* darker lime for print-safe links/accent text */
+        --lime-bright: #a3e635;
+        --hairline: #e4e4e7;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Helvetica Neue", Helvetica, Arial, "Segoe UI", sans-serif;
+        font-size: 10.2pt;
+        line-height: 1.42;
+        color: var(--ink);
+      }
+
+      /* ---------- Header ---------- */
+      header { text-align: center; }
+      h1 {
+        margin: 0;
+        font-size: 21pt;
+        letter-spacing: 0.03em;
+        line-height: 1.15;
+      }
+      .role {
+        margin-top: 2pt;
+        font-size: 11.5pt;
+        font-weight: 600;
+        color: var(--lime);
+        letter-spacing: 0.02em;
+      }
+      .contact {
+        margin: 8pt auto 0;
+        padding-top: 7pt;
+        max-width: 7.1in;
+        border-top: 2pt solid #17171b; /* crisp black rule that echoes the site's black header */
+        border-image: linear-gradient(90deg, #17171b 0 62%, var(--lime-bright) 62% 100%) 1;
+        font-size: 9.6pt;
+        color: var(--ink);
+      }
+      .contact span.sep { color: #a1a1aa; margin: 0 5pt; }
+
+      .contact a, a.contact-link {
+        color: var(--ink);
+        text-decoration: none;
+      }
+      .contact a:hover { text-decoration: underline; }
+
+      /* ---------- Sections ---------- */
+      h2 {
+        margin: 13pt 0 5pt;
+        padding-bottom: 2.5pt;
+        font-size: 10.8pt;
+        /* Small tracking only: wide letter-spacing (0.1em+) splits words apart
+           in the PDF text layer and breaks ATS/keyword parsing of headings. */
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        border-bottom: 0.9pt solid var(--hairline);
+        position: relative;
+      }
+      /* Lime accent bar sitting on the section rule */
+      h2::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -0.9pt;
+        width: 2.6in;
+        height: 2.4pt;
+        background: var(--lime-bright);
+      }
+
+      p { margin: 0 0 4pt; }
+
+      /* ---------- Skills ---------- */
+      .skill-row { margin: 0 0 2.5pt; }
+      .skill-cat {
+        display: inline-block;
+        min-width: 1.62in;
+        font-weight: 700;
+      }
+
+      /* ---------- Projects ---------- */
+      .entry { margin: 0 0 8.5pt; break-inside: avoid; }
+      .entry:last-child { margin-bottom: 0; }
+      .entry-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+      .entry-title {
+        font-size: 10.8pt;
+        font-weight: 700;
+        margin: 0;
+      }
+      .entry-links {
+        font-size: 9.2pt;
+        white-space: nowrap;
+        color: var(--muted);
+      }
+      .entry-links a { color: var(--lime); }
+      .entry-links .sep { color: #a1a1aa; margin: 0 4pt; }
+      .entry-tech {
+        margin-top: 1.5pt;
+        font-size: 9.4pt;
+        color: var(--muted);
+      }
+      .entry-tech strong { color: var(--ink); font-weight: 600; }
+      .entry p {
+        margin-top: 2.5pt;
+        color: var(--ink);
+      }
+
+      /* ---------- Education ---------- */
+      .edu-line {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+      .edu-note { color: var(--muted); font-size: 9.6pt; margin-top: 1.5pt; }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>ABDUR RAZZAK SAKIB</h1>
+      <p class="role">Full-Stack Web Developer</p>
+      <p class="contact">
+        <a href="mailto:abdurrazzaqsakib@gmail.com">abdurrazzaqsakib@gmail.com</a><span class="sep">|</span>
+        <a href="https://wa.me/8801876271346">WhatsApp 01876271346</a><span class="sep">|</span>
+        <a href="https://github.com/mdsakibdev">github.com/mdsakibdev</a><span class="sep">|</span>
+        <a href="https://www.linkedin.com/in/abdurrazzak1">linkedin.com/in/abdurrazzak1</a>
+      </p>
+    </header>
+
+    <h2>Professional Summary</h2>
+    <p>
+      Full-Stack Web Developer focused on building modern, responsive, and user-friendly web
+      applications. Interested in creating clean interfaces, reusable components, and practical
+      digital experiences using modern frontend and backend technologies. Continuously developing
+      technical skills through hands-on projects and learning.
+    </p>
+
+    <h2>Technical Skills</h2>
+    <p class="skill-row"><span class="skill-cat">Frontend:</span> HTML, CSS, JavaScript, React, Next.js, TypeScript, Tailwind CSS</p>
+    <p class="skill-row"><span class="skill-cat">Backend & Database:</span> Node.js, Express.js, MongoDB, PostgreSQL</p>
+    <p class="skill-row"><span class="skill-cat">Tools:</span> Git, GitHub, Visual Studio Code</p>
+
+    <h2>Selected Projects</h2>
+
+    <!--
+      PROFESSIONAL EXPERIENCE PLACEHOLDER
+      Add a "Professional Experience" section here ONLY when real employment or
+      internship information is available. Do not populate it with invented roles.
+    -->
+
+    <div class="entry">
+      <div class="entry-head">
+        <h3 class="entry-title">Bangla News 24</h3>
+        <span class="entry-links">
+          <a href="https://bangla-news24-two.vercel.app/">Live: bangla-news24-two.vercel.app</a><span class="sep">|</span>
+          <a href="https://github.com/mdsakibdev/Bangla-News-24">Code: github.com/mdsakibdev/Bangla-News-24</a>
+        </span>
+      </div>
+      <p class="entry-tech"><strong>Tech:</strong> Next.js, React, TypeScript, Tailwind CSS, daisyUI, Better Auth, MongoDB</p>
+      <p>
+        A Bangla-language news portal featuring a running latest-news ticker, dedicated category
+        pages across politics, world, economy, health, sports, and technology, individual article
+        pages, and user sign-in/sign-up flows.
+      </p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-head">
+        <h3 class="entry-title">Bazar Dor</h3>
+        <span class="entry-links">
+          <a href="https://bazar-dor-sable.vercel.app/">Live: bazar-dor-sable.vercel.app</a><span class="sep">|</span>
+          <a href="https://github.com/mdsakibdev/Bazar-Dor">Code: github.com/mdsakibdev/Bazar-Dor</a>
+        </span>
+      </div>
+      <p class="entry-tech"><strong>Tech:</strong> Next.js, React, TypeScript, Tailwind CSS, daisyUI, Better Auth, MongoDB</p>
+      <p>
+        A Bangla, mobile-first web app for tracking daily prices of essential commodities. Prices
+        are shown with rising/falling indicators, can be browsed by category and sorted, and are
+        broken down by individual retail markets so shoppers can compare before buying. Includes
+        email/password authentication plus Google and GitHub sign-in via Better Auth.
+      </p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-head">
+        <h3 class="entry-title">Verdant Table</h3>
+        <span class="entry-links">
+          <a href="https://verdant-table-puce.vercel.app/">Live: verdant-table-puce.vercel.app</a><span class="sep">|</span>
+          <a href="https://github.com/mdsakibdev/Verdant-Table">Code: github.com/mdsakibdev/Verdant-Table</a>
+        </span>
+      </div>
+      <p class="entry-tech"><strong>Tech:</strong> Next.js, React, Tailwind CSS, Better Auth, MongoDB</p>
+      <p>
+        A polished, fully responsive website built for a catering business concept, featuring a
+        services showcase spanning event types from weddings to corporate catering, a featured menu
+        with individual dish detail pages, a product shop with a cart flow, and a quote-request
+        contact flow. <!-- REVIEW: features per lib/data/projects.ts; confirm with owner -->
+      </p>
+    </div>
+
+    <h2>Education</h2>
+    <div class="entry">
+      <div class="edu-line">
+        <h3 class="entry-title">Qawmi Madrasa</h3>
+        <span class="entry-links">Completed — master's-level education</span>
+      </div>
+      <p class="edu-note">Field of study: Arabic.</p>
+    </div>
+  </body>
+</html>
