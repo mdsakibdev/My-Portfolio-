@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { readContactConfig } from "@/lib/contact/config";
 import {
   validateContactForm,
   type ContactFieldErrors,
@@ -176,19 +177,21 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  if (isRateLimited(getClientIp(request))) {
-    return errorResponse(
-      "Too many messages were sent from this connection. Please try again in a few minutes.",
-      429,
-    );
-  }
+  const contactConfig = readContactConfig();
+  if (!contactConfig.config) {
+    const details = [
+      contactConfig.missing.length > 0
+        ? `missing: ${contactConfig.missing.join(", ")}`
+        : null,
+      contactConfig.invalid.length > 0
+        ? `invalid: ${contactConfig.invalid.join(", ")}`
+        : null,
+    ]
+      .filter((detail): detail is string => detail !== null)
+      .join("; ");
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const recipient = process.env.CONTACT_EMAIL;
-
-  if (!apiKey || !recipient) {
     console.error(
-      "Contact form is not configured. Set CONTACT_EMAIL, RESEND_API_KEY, and RESEND_FROM_EMAIL.",
+      `Contact form is not configured (${details}). Copy .env.example to .env.local and fill it in.`,
     );
     return errorResponse(
       "The contact form is temporarily unavailable. Please email me directly instead.",
@@ -196,8 +199,14 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const from =
-    process.env.RESEND_FROM_EMAIL ?? "Portfolio Contact <onboarding@resend.dev>";
+  if (isRateLimited(getClientIp(request))) {
+    return errorResponse(
+      "Too many messages were sent from this connection. Please try again in a few minutes.",
+      429,
+    );
+  }
+
+  const { apiKey, recipient, from } = contactConfig.config;
   const safeSubject = values.subject.replace(/[\r\n]+/g, " ");
   const subject = `[Portfolio] ${values.inquiryType}${
     safeSubject ? ` — ${safeSubject}` : ""

@@ -30,7 +30,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - `components/contact/contact-dialog.tsx` (modal shell) + `contact-form.tsx` (fields/state) render the **Say Hello** modal; the trigger's classes must stay identical to the old mailto button.
 - `lib/contact/schema.ts` holds shared types/validation used by both the client and `app/api/contact/route.ts`. Keep it free of server-only imports.
-- Server env vars: `CONTACT_EMAIL`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (see `.env.example`). They are read only in the route — never import them into client components or prefix them with `NEXT_PUBLIC_`.
+- `lib/contact/config.ts` reads/validates the Resend env vars for the route; `npm run check:contact` reports which are set (never values). Missing/malformed config must stay a 503 with a generic UI message, but the server log names the variable.
+- Server env vars: `CONTACT_EMAIL`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL` (see `.env.example`). They are read only by the server-side config module/route — never import them into client components or prefix them with `NEXT_PUBLIC_`.
 - Without credentials the route returns 503 and the UI shows an error; never short-circuit to a success state. Resend is a dependency, not ad-hoc tooling.
 - The modal locks `html`/`body` scroll while open by design (this is separate from the mobile-menu rule below) and must keep Escape, backdrop click, close button, focus trap, and focus restoration working.
 
